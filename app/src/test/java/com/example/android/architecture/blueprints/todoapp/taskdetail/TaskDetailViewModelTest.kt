@@ -46,7 +46,8 @@ class TaskDetailViewModelTest {
     var mainCoroutineRule = MainCoroutineRule()
 
     // Executes each task synchronously using Architecture Components.
-    @get:Rule var instantExecutorRule = InstantTaskExecutorRule()
+    @get:Rule
+    var instantExecutorRule = InstantTaskExecutorRule()
 
     val task = Task("Title1", "Description1")
 
@@ -65,7 +66,7 @@ class TaskDetailViewModelTest {
         // Then verify that the view was notified
         assertThat(getValue(taskDetailViewModel.task).title).isEqualTo(task.title)
         assertThat(getValue(taskDetailViewModel.task).description)
-            .isEqualTo(task.description)
+                .isEqualTo(task.description)
     }
 
     @Test
@@ -134,7 +135,16 @@ class TaskDetailViewModelTest {
 
     @Test
     fun loadTask_loading() {
-        // TODO
+        // Pause dispatcher so we can verify initial values
+        mainCoroutineRule.pauseDispatcher()
+        // Load the task in the viewmodel
+        taskDetailViewModel.start(task.id)
+        // Progress indicator is shown
+        assertThat(getValue(taskDetailViewModel.dataLoading)).isTrue()
+        // Execute pending coroutines actions
+        mainCoroutineRule.resumeDispatcher()
+        // Progress indicator is hidden
+        assertThat(getValue(taskDetailViewModel.dataLoading)).isFalse()
     }
 
     @Test
